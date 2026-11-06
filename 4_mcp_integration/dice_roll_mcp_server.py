@@ -5,7 +5,7 @@ from mcp.server import FastMCP
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 mcp = FastMCP(
-    port=8002
+    host="0.0.0.0", stateless_http=True
 )
 
 @mcp.tool(description="Roll dice tool")

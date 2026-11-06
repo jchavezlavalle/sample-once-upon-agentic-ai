@@ -8,6 +8,7 @@ from tinydb import TinyDB, Query
 from strands import Agent
 from strands.vended_tools import make_a2a_client
 from strands.tools.mcp import MCPClient
+from mcp.client.sse import sse_client
 
 app = FastAPI(title="Game Master API")
 origins = ["*"]
@@ -44,8 +45,6 @@ def get_user(user_name):
     print(f"✅ Found character: {character['name']} (ID: {character['character_id']}, {character['character_class']} {character['race']})")
     return character
 
-# TODO: Step 1 - Create an MCPClient with the url "http://localhost:8002/mcp"
-
 class DiceOutput(BaseModel):
     dice_type: str = Field(description="The dice type. Ex: d4, d6, d20, etc")
     result: int = Field(description="The dice result value alone")
@@ -59,12 +58,31 @@ class StoryOutput(BaseModel):
     dice_rolls: list[DiceOutput] = Field(default=[], description="List of dice rolls with dice_type, result, and reason")
 
 try:
-    # TODO: Step 2 - Create the A2A client tool with make_a2a_client and the allowed agent endpoints
+    print("Initializing A2A client...")
+
+    a2a_client = make_a2a_client(
+        allowed_endpoints=[
+            "http://localhost:8000",
+            "http://localhost:8001"
+        ],
+    )
+
+    print("A2A client initialized!")
+
+    print("Initializing MCP client...")
+
+    mcp_client = MCPClient(
+        url="http://localhost:8002/mcp"
+    )
+
+    print("MCP client initialized!")
+    print("Initializing Game Master agent...")
+
 
     agent = Agent(
         system_prompt="""You are a Game Master for a fantasy role-playing game. Discover the agents you can reach and ask them instead of guessing: rules questions, character creation and lookups are their job. Every dice roll goes through roll_dice. Never make up what a tool can tell you, and narrate with flair.""",
-        # TODO: Step 3 - Add the mcp_client and a2a_client tools to the agent
-        # TODO: Step 4 - Force the response to use the StoryOutput model
+        tools=[a2a_client, mcp_client],
+        structured_output_model=StoryOutput
     )
     print(agent)
 
@@ -73,6 +91,12 @@ except Exception as e:
 
 @app.post("/inquire")
 async def ask_agent(request: QuestionRequest):
+
+    if "agent" not in globals():
+        return JSONResponse(
+            content={"error": "Game Master agent is not initialized"},
+            status_code=503
+        )
     print("Processing request...")
     try:
         response = await agent.invoke_async(request.question)
