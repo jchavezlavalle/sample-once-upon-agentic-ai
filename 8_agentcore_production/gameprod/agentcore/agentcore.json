@@ -7,9 +7,34 @@
     "agentcore:created-by": "agentcore-cli",
     "agentcore:project-name": "gameprod"
   },
-  "runtimes": [],
+  "runtimes": [
+    {
+      "name": "diceserver",
+      "build": "CodeZip",
+      "entrypoint": "dice_roll_mcp_server.py",
+      "codeLocation": "../diceserver/",
+      "runtimeVersion": "PYTHON_3_14",
+      "networkMode": "PUBLIC",
+      "instrumentation": {
+        "enableOtel": false
+      },
+      "protocol": "MCP"
+    }
+  ],
   "memories": [],
-  "knowledgeBases": [],
+  "knowledgeBases": [
+    {
+      "type": "AgentCoreKnowledgeBase",
+      "name": "rules",
+      "description": "Basic Rules",
+      "dataSources": [
+        {
+          "type": "S3",
+          "uri": "s3://gameprod-rules-863518434944/"
+        }
+      ]
+    }
+  ],
   "credentials": [],
   "evaluators": [],
   "onlineEvalConfigs": [],
