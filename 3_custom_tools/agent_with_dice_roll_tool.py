@@ -1,9 +1,17 @@
 from strands import Agent
-# TODO: Step 1 - Import tool from strands
+from strands import tool
 
-# TODO: Step 1 - Add the decorator to transform your function into a tool
+@tool
 def roll_dice(faces: int = 6) -> int:
-    # TODO: Step 2 - Write a docstring with the description, an Args section and the return value
+    """
+    Roll the dice to obtain a random number.
+    Number that is a parameter called faces is by default 6 (a dice containing 6 numbers from 1 to 6)
+    If not specified, dice will be of 6 faces. 
+    In any case, it will return a random integer number from 1 up to faces (default to 6)
+
+    Example: roll_dice() , response: 2
+    Another example could be roll_dice(4) in this case the response being for example 1, it cannot be higher than faces argument.
+    """
 
     import random
 
@@ -16,7 +24,7 @@ def roll_dice(faces: int = 6) -> int:
 print(roll_dice.tool_spec)  # what Strands tells the model about your tool
 
 dice_master = Agent(
-    # TODO: Step 3 - Add the tool to the agent
+    tools=[roll_dice],
     system_prompt="""You are Lady Luck, the mystical keeper of dice and fortune in fantasy role-playing adventures.
     You speak with theatrical flair and always announce dice rolls with appropriate drama.
     You know all about the game mechanics, ability scores, and can help players with character creation.
